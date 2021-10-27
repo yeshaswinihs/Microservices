@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.restfulapp.ws.model.UserDto;
 import com.restfulapp.ws.model.Exceptions.UserServiceException;
 import com.restfulapp.ws.model.response.UserRest;
 import com.restfulapp.ws.userservice.UserService;
@@ -34,6 +37,9 @@ public class UserController {
 
 	@Autowired
 	UserService userService;
+
+//	@Autowired
+//	ModelMapper modelMapper;
 
 	@GetMapping(path = "/{userId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> getUser(@PathVariable String userId) {
@@ -59,12 +65,17 @@ public class UserController {
 		return "get" + page + limit + sort;
 	}
 
+//Create User(Sign up)
 	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserRest userRest) {
 
-		UserRest user = userService.createUser(userRest);
-		return new ResponseEntity<UserRest>(user, HttpStatus.CREATED);
+		ModelMapper modelMapper = new ModelMapper();
+		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		UserDto userDtoInput = modelMapper.map(userRest, UserDto.class);
+		UserDto userDtoOutput = userService.createUser(userDtoInput);
+		UserRest userRestO = modelMapper.map(userDtoOutput, UserRest.class);
+		return new ResponseEntity<UserRest>(userRestO, HttpStatus.CREATED);
 	};
 
 	@PutMapping(path = "/{userId}", consumes = { MediaType.APPLICATION_JSON_VALUE,
@@ -96,7 +107,7 @@ public class UserController {
 
 	@GetMapping(path = "/status/check")
 	public String status() {
-		return "working on port " +env.getProperty("local.server.port");
+		return "working on port " + env.getProperty("local.server.port");
 	}
 
 }
