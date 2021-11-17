@@ -22,12 +22,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.restfulapp.ws.model.UserDto;
-import com.restfulapp.ws.model.Exceptions.UserServiceException;
 import com.restfulapp.ws.model.response.UserRest;
 import com.restfulapp.ws.userservice.UserService;
 
 @RestController
-@RequestMapping("users") // http://localhost:8080/users
+@RequestMapping("/users") // http://localhost:8080/users
 public class UserController {
 
 	@Autowired
@@ -47,15 +46,18 @@ public class UserController {
 //		String firstName=null;
 //		int length= firstName.length();
 		// throw a custom exception
-		if (true)
-			throw new UserServiceException("A user service exception is thrown");
+//		if (true)
+//			throw new UserServiceException("A user service exception is thrown");
+//
+//		if (users.containsKey(userId)) {
+//			return new ResponseEntity<>(users.get(userId), HttpStatus.OK);
+//		} else {
+//			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//		}s
 
-		if (users.containsKey(userId)) {
-			return new ResponseEntity<>(users.get(userId), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-
+		UserDto userDto = userService.getUserByUserId(userId);
+		UserRest userRestO = new ModelMapper().map(userDto, UserRest.class);
+		return ResponseEntity.status(HttpStatus.OK).body(userRestO);
 	}
 
 	@GetMapping()
@@ -107,7 +109,8 @@ public class UserController {
 
 	@GetMapping(path = "/status/check")
 	public String status() {
-		return "working on port " + env.getProperty("local.server.port");
+		return "working on port " + env.getProperty("local.server.port") + "with token="
+				+ env.getProperty("token.secret");
 	}
 
 }

@@ -1,8 +1,12 @@
 package com.restfulapp.ws.model.response;
 
+import java.util.List;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.restfulapp.ws.model.AlbumResponseModel;
 
 public class UserRest {
 	@Size(min = 2, message = "First name should not be 2 characters")
@@ -17,6 +21,16 @@ public class UserRest {
 	@NotNull
 	@Size(min = 8, max = 16, message = "password must be greater than 8 and less than 16 characters")
 	private String password;
+
+	private List<AlbumResponseModel> albums;
+
+	public List<AlbumResponseModel> getAlbums() {
+		return albums;
+	}
+
+	public void setAlbums(List<AlbumResponseModel> albums) {
+		this.albums = albums;
+	}
 
 	public String getFirstName() {
 		return firstName;
